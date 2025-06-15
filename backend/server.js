@@ -10,11 +10,11 @@ const server = http.createServer(app);
 
 // Example: "https://my-cool-web.vercel.app"
 
-const VERCEL_FRONTEND_URL = "https://my-cool-web-eia6-aedsug1i3-farheens-projects-31ccefcb.vercel.app";
+const VERCEL_FRONTEND_URL = "https://my-cool-web-eia6.vercel.app/";
 
 const io = socketIo(server, {
   cors: {
-    origin: ["http://localhost:3000", "https://my-cool-web-eia6-aedsug1i3-farheens-projects-31ccefcb.vercel.app"],
+    origin: ["http://localhost:3000", "https://my-cool-web-eia6.vercel.app/"],
     methods: ["GET", "POST"]
   }
 });
