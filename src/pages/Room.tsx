@@ -163,7 +163,7 @@ const Room = () => {
 
   useEffect(() => {
     // Initialize socket connection
-    const newSocket = io('http://localhost:3001', {
+    const newSocket = io('my-cool-web-production.up.railway.app', {
       query: {
         roomId,
         userName,
