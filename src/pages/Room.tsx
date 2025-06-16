@@ -168,7 +168,7 @@ const Room = () => {
 
   useEffect(() => {
     // Initialize socket connection
-    const newSocket = io('my-cool-web-production.up.railway.app', {
+    const newSocket = io('https://my-cool-web-production.up.railway.app', {
       query: {
         roomId,
         userName,
