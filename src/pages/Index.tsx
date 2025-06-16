@@ -54,7 +54,7 @@ const Index = () => {
             <div className="bg-white/10 p-3 rounded-lg backdrop-blur-sm">
               <Code className="w-8 h-8 text-white" />
             </div>
-            <h1 className="text-5xl font-bold text-white">Code Sync</h1>
+            <h1 className="text-5xl font-bold text-white">Code Editor</h1>
           </div>
           <p className="text-xl text-blue-100 mb-2">Real-time collaborative code editing with 30+ languages</p>
           <div className="flex items-center justify-center gap-6 text-blue-200">

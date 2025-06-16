@@ -1,5 +1,7 @@
 import React, { useEffect, useState, useRef } from 'react';
-import { useParams, useSearchParams } from 'react-router-dom';
+
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
+
 import { Editor } from '@monaco-editor/react';
 import { io, Socket } from 'socket.io-client';
 import { Button } from '@/components/ui/button';
@@ -37,7 +39,9 @@ import {
   ChevronRight,
   Trash2,
   Plus,
-  Folder
+  Folder,
+
+  LogOut
 } from 'lucide-react';
 import UsersPanel from '@/components/UsersPanel';
 import ChatPanel from '@/components/ChatPanel';
@@ -133,6 +137,7 @@ int main() {
 const Room = () => {
   const { roomId } = useParams();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
   const userName = searchParams.get('name') || 'Anonymous';
   const userRole = searchParams.get('role') as 'host' | 'guest' || 'guest';
 
@@ -402,6 +407,14 @@ const Room = () => {
     }
   };
 
+  const leaveRoom = () => {
+    if (socket) {
+      socket.disconnect();
+    }
+  toast.success('Left the room');
+  navigate('/');
+  };
+
   const canEdit = currentUser?.role === 'host' || currentUser?.permission === 'editor';
   const isHost = currentUser?.role === 'host';
 
@@ -490,6 +503,17 @@ const Room = () => {
             <Play className="w-4 h-4 mr-2" />
             {isExecuting ? 'Running...' : 'Run Code'}
           </Button>
+
+          <Button
+            size="sm"
+            variant="ghost"
+            onClick={leaveRoom}
+            className="text-red-400 hover:text-red-300"
+          >
+            <LogOut className="w-4 h-4 mr-2" />
+            Leave
+          </Button>
+
         </div>
       </div>
       {/* Layout: Sidebar and main area */}
