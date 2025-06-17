@@ -81,7 +81,22 @@ const LANGUAGES = [
   { value: 'php', label: 'PHP', jdoodleId: 'php', extension: 'php' },
   { value: 'ruby', label: 'Ruby', jdoodleId: 'ruby', extension: 'rb' },
   { value: 'go', label: 'Go', jdoodleId: 'go', extension: 'go' },
-  { value: 'rust', label: 'Rust', jdoodleId: 'rust', extension: 'rs' }
+  { value: 'rust', label: 'Rust', jdoodleId: 'rust', extension: 'rs' },
+  { value: 'kotlin', label: 'Kotlin', jdoodleId: 'kotlin', extension: 'kt' },
+  { value: 'swift', label: 'Swift', jdoodleId: 'swift', extension: 'swift' },
+  { value: 'typescript', label: 'TypeScript', jdoodleId: 'nodejs', extension: 'ts' },
+  { value: 'scala', label: 'Scala', jdoodleId: 'scala', extension: 'scala' },
+  { value: 'perl', label: 'Perl', jdoodleId: 'perl', extension: 'pl' },
+  { value: 'lua', label: 'Lua', jdoodleId: 'lua', extension: 'lua' },
+  { value: 'haskell', label: 'Haskell', jdoodleId: 'haskell', extension: 'hs' },
+  { value: 'r', label: 'R', jdoodleId: 'r', extension: 'r' },
+  { value: 'dart', label: 'Dart', jdoodleId: 'dart', extension: 'dart' },
+  { value: 'elixir', label: 'Elixir', jdoodleId: 'elixir', extension: 'ex' },
+  { value: 'clojure', label: 'Clojure', jdoodleId: 'clojure', extension: 'clj' },
+  { value: 'fsharp', label: 'F#', jdoodleId: 'fsharp', extension: 'fs' },
+  { value: 'pascal', label: 'Pascal', jdoodleId: 'pascal', extension: 'pas' },
+  { value: 'fortran', label: 'Fortran', jdoodleId: 'fortran', extension: 'f90' },
+  { value: 'cobol', label: 'COBOL', jdoodleId: 'cobol', extension: 'cob' }
 ];
 
 const DEFAULT_CODE = {
@@ -131,6 +146,64 @@ int main() {
     std::cout << "Hello, World!" << std::endl;
     std::cout << greet("Code Sync") << std::endl;
     return 0;
+}`,
+  typescript: `// Welcome to Code Sync!
+// Start typing to see real-time collaboration in action
+
+console.log("Hello, World!");
+
+function greet(name: string): string {
+  return \`Hello, \${name}! Welcome to collaborative coding.\`;
+}
+
+console.log(greet("Code Sync"));`,
+  kotlin: `// Welcome to Code Sync!
+// Start typing to see real-time collaboration in action
+
+fun greet(name: String): String {
+    return "Hello, $name! Welcome to collaborative coding."
+}
+
+fun main() {
+    println("Hello, World!")
+    println(greet("Code Sync"))
+}`,
+  swift: `// Welcome to Code Sync!
+// Start typing to see real-time collaboration in action
+
+import Foundation
+
+func greet(name: String) -> String {
+    return "Hello, \(name)! Welcome to collaborative coding."
+}
+
+print("Hello, World!")
+print(greet(name: "Code Sync"))`,
+  go: `// Welcome to Code Sync!
+// Start typing to see real-time collaboration in action
+
+package main
+
+import "fmt"
+
+func greet(name string) string {
+    return fmt.Sprintf("Hello, %s! Welcome to collaborative coding.", name)
+}
+
+func main() {
+    fmt.Println("Hello, World!")
+    fmt.Println(greet("Code Sync"))
+}`,
+  rust: `// Welcome to Code Sync!
+// Start typing to see real-time collaboration in action
+
+fn greet(name: &str) -> String {
+    format!("Hello, {}! Welcome to collaborative coding.", name)
+}
+
+fn main() {
+    println!("Hello, World!");
+    println!("{}", greet("Code Sync"));
 }`
 };
 
@@ -372,15 +445,24 @@ const Room = () => {
     }
   };
 
-  const createNewFile = () => {
+  const createNewFile = (fileName?: string) => {
     if (socket && currentUser?.role === 'host') {
+       const finalFileName = fileName || (() => {
+        const lang = LANGUAGES.find(l => l.value === language);
+        return `untitled.${lang?.extension || 'txt'}`;
+      })();
       const newCode = DEFAULT_CODE[language as keyof typeof DEFAULT_CODE] || '';
-      const lang = LANGUAGES.find(l => l.value === language);
-      const fileName = `untitled.${lang?.extension || 'txt'}`;
       setCode(newCode);
-      setCurrentFileName(fileName);
+      setCurrentFileName(finalFileName);
       socket.emit('codeChange', { roomId, code: newCode });
-      toast.success(`New file "${fileName}" created`);
+      toast.success(`New file "${finalFileName}" created`);
+    }
+  };
+
+  const renameCurrentFile = (newName: string) => {
+    if (socket && currentUser?.role === 'host') {
+      setCurrentFileName(newName);
+      toast.success(`File renamed to "${newName}"`);
     }
   };
 
@@ -529,6 +611,7 @@ const Room = () => {
               onDeleteFile={deleteCurrentFile}
               onUploadFile={() => fileInputRef.current?.click()}
               onDownloadFile={downloadCode}
+              onRenameFile={renameCurrentFile}
               isHost={isHost}
             />
           }
