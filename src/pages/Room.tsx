@@ -353,9 +353,18 @@ const Room = () => {
   const handleEditorChange = (value: string | undefined) => {
     if (value !== undefined && socket) {
       const canEdit = currentUser?.role === 'host' || currentUser?.permission === 'editor';
+      console.log('Editor change attempt:', { 
+        canEdit, 
+        userRole: currentUser?.role, 
+        userPermission: currentUser?.permission,
+        userId: currentUser?.id 
+      });
+      
       if (canEdit) {
         setCode(value);
         socket.emit('codeChange', { roomId, code: value });
+      } else {
+        toast.error('You need editor permission to modify the code');
       }
     }
   };
@@ -499,6 +508,13 @@ const Room = () => {
 
   const canEdit = currentUser?.role === 'host' || currentUser?.permission === 'editor';
   const isHost = currentUser?.role === 'host';
+ 
+  console.log('Current user permissions:', {
+    userId: currentUser?.id,
+    role: currentUser?.role,
+    permission: currentUser?.permission,
+    canEdit
+  });
 
   return (
     <div className="h-screen bg-slate-900 flex flex-col">
