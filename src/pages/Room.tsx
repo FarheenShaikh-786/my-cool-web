@@ -325,13 +325,24 @@ const Room = () => {
 
     newSocket.on('permissionChanged', (data: { userId: string; permission: 'viewer' | 'editor' }) => {
       console.log('Permission changed:', data);
+
+
+      // Update users list
       setUsers(prev => prev.map(user => 
         user.id === data.userId ? { ...user, permission: data.permission } : user
       ));
-      if (currentUser?.id === data.userId) {
-        setCurrentUser(prev => prev ? { ...prev, permission: data.permission } : null);
-        toast.info(`Your permission changed to ${data.permission}`);
-      }
+      // Update current user if it's them
+      setCurrentUser(prev => {
+        if (prev && prev.id === data.userId) {
+          const updatedUser = { ...prev, permission: data.permission };
+          console.log('Current user permission updated:', updatedUser);
+          toast.info(`Your permission changed to ${data.permission}`, {
+            description: data.permission === 'editor' ? 'You can now edit code' : 'You can only view code'
+          });
+          return updatedUser;
+        }
+        return prev;
+      });
     });
 
     newSocket.on('error', (error: { message: string }) => {
@@ -351,20 +362,30 @@ const Room = () => {
   }, [chatMessages]);
 
   const handleEditorChange = (value: string | undefined) => {
-    if (value !== undefined && socket) {
-      const canEdit = currentUser?.role === 'host' || currentUser?.permission === 'editor';
-      console.log('Editor change attempt:', { 
+   if (value !== undefined && socket && currentUser) {
+      const canEdit = currentUser.role === 'host' || currentUser.permission === 'editor';
+      
+      console.log('Editor change attempt:', {  
         canEdit, 
-        userRole: currentUser?.role, 
-        userPermission: currentUser?.permission,
-        userId: currentUser?.id 
+        userRole: currentUser.role, 
+        userPermission: currentUser.permission,
+        userId: currentUser.id,
+        userName: currentUser.name
       });
       
       if (canEdit) {
         setCode(value);
         socket.emit('codeChange', { roomId, code: value });
       } else {
-        toast.error('You need editor permission to modify the code');
+          toast.error('You need editor permission to modify the code', {
+          description: 'Ask the host to give you editor permission'
+        });
+        // Revert the change in the editor
+        setTimeout(() => {
+          if (editorRef.current) {
+            editorRef.current.setValue(code);
+          }
+        }, 0);
       }
     }
   };
@@ -556,6 +577,22 @@ const Room = () => {
           </div>
           <div className="text-sm text-slate-400">
             File: {currentFileName}
+          </div>
+          {/* Permission indicator */}
+          <div className="flex items-center gap-2">
+            <Badge variant={canEdit ? 'default' : 'secondary'} className="text-xs">
+              {canEdit ? (
+                <>
+                  <Edit3 className="w-3 h-3 mr-1" />
+                  Editor
+                </>
+              ) : (
+                <>
+                  <Eye className="w-3 h-3 mr-1" />
+                  Viewer
+                </>
+              )}
+            </Badge>
           </div>
         </div>
         {/* Right: Video, Schedule, Language, Run */}
